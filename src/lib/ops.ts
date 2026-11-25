@@ -40,8 +40,19 @@ export function runBackup(): string {
   const file = path.join(BACKUP_DIR, `tesla-${stamp()}.db`);
   const tmp = `${file}.tmp`;
   fs.rmSync(/*turbopackIgnore: true*/ tmp, { force: true });
-  getDb().prepare("VACUUM INTO ?").run(tmp);
-  fs.renameSync(/*turbopackIgnore: true*/ tmp, file);
+  try {
+    getDb().prepare("VACUUM INTO ?").run(tmp);
+    fs.chmodSync(/*turbopackIgnore: true*/ tmp, 0o600);
+    fs.renameSync(/*turbopackIgnore: true*/ tmp, file);
+  } catch (e) {
+    fs.rmSync(/*turbopackIgnore: true*/ tmp, { force: true });
+    throw e;
+  }
+  for (const f of fs.readdirSync(/*turbopackIgnore: true*/ BACKUP_DIR)) {
+    if (f.endsWith(".db.tmp") && f !== path.basename(tmp)) {
+      fs.rmSync(/*turbopackIgnore: true*/ path.join(BACKUP_DIR, f), { force: true });
+    }
+  }
   const old = fs
     .readdirSync(/*turbopackIgnore: true*/ BACKUP_DIR)
     .filter((f) => BACKUP_RE.test(f))

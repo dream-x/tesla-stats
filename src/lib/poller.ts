@@ -10,18 +10,19 @@ const ACTIVE_MS = minutes(process.env.POLL_ACTIVE_INTERVAL_MINUTES, 2);
 
 export type PollResult = { status: "ok" | "asleep" | "skipped" | "error"; message?: string; active?: boolean };
 
-let inFlight: Promise<PollResult> | null = null;
+// Next bundles instrumentation and routes separately, so share state via globalThis.
+const pg = globalThis as unknown as { __teslaInFlight?: Promise<PollResult> | null };
 
 export function pollOnce(): Promise<PollResult> {
-  inFlight ??= doPoll()
+  pg.__teslaInFlight ??= doPoll()
     .then((r) => {
       countPoll(r.status);
       return r;
     })
     .finally(() => {
-      inFlight = null;
+      pg.__teslaInFlight = null;
     });
-  return inFlight;
+  return pg.__teslaInFlight;
 }
 
 async function doPoll(): Promise<PollResult> {

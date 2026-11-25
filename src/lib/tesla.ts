@@ -73,11 +73,20 @@ export async function exchangeCode(code: string): Promise<void> {
   await detectRegion().catch(() => undefined);
 }
 
-async function getAccessToken(): Promise<string> {
+const tg = globalThis as unknown as { __teslaRefresh?: Promise<string> | null };
+
+function getAccessToken(): Promise<string> {
   const token = getSetting("tesla_access_token");
   const expiresAt = Number(getSetting("tesla_expires_at") ?? 0);
-  if (token && Date.now() < expiresAt) return token;
+  if (token && Date.now() < expiresAt) return Promise.resolve(token);
+  // One shared refresh: Tesla rotates refresh tokens, so parallel refreshes would invalidate each other.
+  tg.__teslaRefresh ??= refreshAccessToken().finally(() => {
+    tg.__teslaRefresh = null;
+  });
+  return tg.__teslaRefresh;
+}
 
+async function refreshAccessToken(): Promise<string> {
   const refreshToken = getSetting("tesla_refresh_token") || process.env.TESLA_REFRESH_TOKEN;
   if (!refreshToken) throw new Error("Tesla не подключена");
   const t = await tokenRequest({
