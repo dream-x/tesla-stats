@@ -7,7 +7,10 @@ export function proxy(request: NextRequest) {
   if (!user || !pass) return NextResponse.next();
 
   const { pathname, searchParams } = request.nextUrl;
-  if (pathname.startsWith("/.well-known/")) return NextResponse.next();
+  // Health and metrics expose no secrets; Gatus and VictoriaMetrics scrape them without credentials.
+  if (pathname.startsWith("/.well-known/") || pathname === "/api/health" || pathname === "/api/metrics") {
+    return NextResponse.next();
+  }
 
   const widgetToken = process.env.WIDGET_TOKEN;
   if (widgetToken && ["/api/summary", "/api/poll", "/widget"].includes(pathname)) {

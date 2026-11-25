@@ -2,6 +2,7 @@ import { setSetting } from "./db";
 import { fetchVehicleData, isTeslaConfigured, isTeslaConnected, VehicleAsleepError } from "./tesla";
 import { recordAsleep, recordVehicleData } from "./recorder";
 import { clearDemoData, hasDemoData } from "./demo";
+import { countPoll } from "./ops";
 
 const minutes = (v: string | undefined, def: number) => Math.max(1, Number(v) || def) * 60_000;
 const IDLE_MS = minutes(process.env.POLL_INTERVAL_MINUTES, 10);
@@ -12,9 +13,14 @@ export type PollResult = { status: "ok" | "asleep" | "skipped" | "error"; messag
 let inFlight: Promise<PollResult> | null = null;
 
 export function pollOnce(): Promise<PollResult> {
-  inFlight ??= doPoll().finally(() => {
-    inFlight = null;
-  });
+  inFlight ??= doPoll()
+    .then((r) => {
+      countPoll(r.status);
+      return r;
+    })
+    .finally(() => {
+      inFlight = null;
+    });
   return inFlight;
 }
 
