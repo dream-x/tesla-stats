@@ -61,6 +61,7 @@ Fleet API платный, но Tesla даёт бесплатный ежемес�
 
 - **PWA / экран «Домой»**: откройте `/widget` в Safari/Chrome → «Поделиться» → «На экран Домой». Страница обновляется сама каждые 5 минут.
 - **iOS‑виджет**: установите [Scriptable](https://scriptable.app), вставьте `widgets/scriptable-tesla-stats.js`, укажите `BASE_URL` (и `TOKEN`). Параметр виджета — период: `today`, `7d`, `month`, `prev-month`, `30d`, `year`.
+- **Виджет macOS** (WidgetKit, рабочий стол и Центр уведомлений): `macos/build.sh` соберёт приложение EV Stats и установит его в `~/Applications`. Нужны Xcode и `brew install xcodegen`. Скрипт берёт `WIDGET_TOKEN` (и необязательный `WIDGET_BASE_URL`, по умолчанию `http://localhost:3000`) из `.env.local`. Затем: правый клик по рабочему столу → «Изменить виджеты» → EV Stats. Период выбирается через «Изменить виджет». Виджет обновляется каждые 15 минут.
 - **JSON API**: `GET /api/summary?period=month` (или `period=custom&from=2026-11-01&to=2026-11-15`) → пробег, кВт·ч, Вт·ч/км, стоимость, ряд по дням. Можно использовать в Home Assistant, Android‑виджетах (KWGT) и т.п.
 - `POST /api/poll` — принудительный опрос машины (для внешнего cron, если встроенный отключён через `DISABLE_POLLER=1`).
 

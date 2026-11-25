@@ -43,3 +43,8 @@ next-env.d.ts
 
 # local database
 /data/
+
+# macOS widget: generated config with token, Xcode project and build output
+/macos/Shared/AppConfig.swift
+/macos/*.xcodeproj/
+/macos/build/

@@ -1,0 +1,5 @@
+// Copy to Shared/AppConfig.swift (or run ./build.sh, which generates it from ../.env.local)
+enum AppConfig {
+    static let baseURL = "http://localhost:3000"
+    static let token = ""
+}
