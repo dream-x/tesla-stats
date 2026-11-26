@@ -1,0 +1,10 @@
+/* App Intents metadata is extracted at build time, so it is localized via the bundle instead of L10n. */
+"Period" = "Период";
+"Today" = "Сегодня";
+"7 days" = "7 дней";
+"This month" = "Этот месяц";
+"Last month" = "Прошлый месяц";
+"30 days" = "30 дней";
+"This year" = "Этот год";
+"Stats period" = "Период статистики";
+"Which period to show mileage and charging for." = "За какой период показывать пробег и зарядку.";

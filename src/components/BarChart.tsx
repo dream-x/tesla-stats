@@ -1,4 +1,5 @@
 import { fmtNum } from "@/lib/format";
+import { t } from "@/lib/i18n";
 
 interface Props {
   title: string;
@@ -15,7 +16,7 @@ export function BarChart({ title, unit, color, data }: Props) {
     <div className="card">
       <div className="mb-3 flex items-baseline justify-between">
         <h3 className="text-sm text-neutral-400">{title}</h3>
-        <span className="text-xs text-neutral-500">макс. {fmtNum(max)} {unit}</span>
+        <span className="text-xs text-neutral-500">{t.chartMax} {fmtNum(max)} {unit}</span>
       </div>
       <div className="flex h-40 items-end gap-[2px]">
         {data.map((d) => (

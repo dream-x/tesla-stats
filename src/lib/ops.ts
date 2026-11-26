@@ -35,7 +35,7 @@ function stamp(d = new Date()) {
 
 /** Consistent online copy via VACUUM INTO, then keeps the newest BACKUP_KEEP files. */
 export function runBackup(): string {
-  if (!BACKUP_DIR) throw new Error("BACKUP_DIR не задан");
+  if (!BACKUP_DIR) throw new Error("BACKUP_DIR is not set");
   fs.mkdirSync(/*turbopackIgnore: true*/ BACKUP_DIR, { recursive: true });
   const file = path.join(BACKUP_DIR, `tesla-${stamp()}.db`);
   const tmp = `${file}.tmp`;
@@ -149,38 +149,38 @@ export function metricsText(): string {
     for (const [labels, v] of present) lines.push(`tesla_stats_${name}${labels} ${v}`);
   };
 
-  metric("up", "Приложение отвечает и база доступна.", "gauge", [["", 1]]);
-  metric("tesla_connected", "Есть токен Tesla.", "gauge", [["", isTeslaConnected() ? 1 : 0]]);
-  metric("poll_last_timestamp_seconds", "Время последнего опроса машины.", "gauge", [
+  metric("up", "App is responding and the database is reachable.", "gauge", [["", 1]]);
+  metric("tesla_connected", "A Tesla token is present.", "gauge", [["", isTeslaConnected() ? 1 : 0]]);
+  metric("poll_last_timestamp_seconds", "Time of the last vehicle poll.", "gauge", [
     ["", lastPoll ? Math.round(lastPoll / 1000) : null],
   ]);
   metric(
     "poll_last_status",
-    "Результат последнего опроса (1 у текущего статуса).",
+    "Result of the last poll (1 for the current status).",
     "gauge",
     (["online", "asleep", "error"] as const).map((s) => [`{status="${s}"}`, status === s ? 1 : 0]),
   );
   metric(
     "polls_total",
-    "Опросы с момента старта процесса.",
+    "Polls since process start.",
     "counter",
     (Object.keys(counters) as PollStatus[]).map((s) => [`{status="${s}"}`, counters[s]]),
   );
-  metric("odometer_km", "Последнее показание одометра, км.", "gauge", [["", latest?.odometer_km ?? null]]);
-  metric("battery_level_percent", "Заряд батареи, %.", "gauge", [["", latest?.battery_level ?? null]]);
-  metric("range_km", "Запас хода, км.", "gauge", [["", latest?.range_km ?? null]]);
-  metric("charging", "Идёт зарядка.", "gauge", [
+  metric("odometer_km", "Latest odometer reading, km.", "gauge", [["", latest?.odometer_km ?? null]]);
+  metric("battery_level_percent", "Battery level, %.", "gauge", [["", latest?.battery_level ?? null]]);
+  metric("range_km", "Estimated range, km.", "gauge", [["", latest?.range_km ?? null]]);
+  metric("charging", "Charging in progress.", "gauge", [
     ["", latest ? (latest.charging_state === "Charging" || latest.charging_state === "Starting" ? 1 : 0) : null],
   ]);
-  metric("charger_power_kw", "Мощность зарядки, кВт.", "gauge", [["", latest?.charger_power ?? null]]);
-  metric("snapshot_last_timestamp_seconds", "Время последнего снимка состояния.", "gauge", [
+  metric("charger_power_kw", "Charging power, kW.", "gauge", [["", latest?.charger_power ?? null]]);
+  metric("snapshot_last_timestamp_seconds", "Time of the last state snapshot.", "gauge", [
     ["", latest ? Math.round(latest.ts / 1000) : null],
   ]);
-  metric("charges", "Число записанных зарядок.", "gauge", [["", charges.n]]);
-  metric("charged_kwh", "Всего заряжено, кВт·ч.", "gauge", [["", Math.round(charges.kwh * 100) / 100]]);
-  metric("backup_last_timestamp_seconds", "Время последнего бэкапа базы.", "gauge", [
+  metric("charges", "Number of recorded charges.", "gauge", [["", charges.n]]);
+  metric("charged_kwh", "Total energy charged, kWh.", "gauge", [["", Math.round(charges.kwh * 100) / 100]]);
+  metric("backup_last_timestamp_seconds", "Time of the last database backup.", "gauge", [
     ["", lastBackup ? Math.round(lastBackup / 1000) : null],
   ]);
-  metric("db_size_bytes", "Размер файла базы.", "gauge", [["", dbSize()]]);
+  metric("db_size_bytes", "Database file size.", "gauge", [["", dbSize()]]);
   return lines.join("\n") + "\n";
 }

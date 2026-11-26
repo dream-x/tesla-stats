@@ -1,3 +1,5 @@
+import { t } from "./i18n";
+
 export type PeriodKey = "today" | "7d" | "month" | "prev-month" | "30d" | "year" | "custom";
 
 export interface Period {
@@ -7,14 +9,9 @@ export interface Period {
   to: number;
 }
 
-export const PERIOD_OPTIONS: { key: PeriodKey; label: string }[] = [
-  { key: "today", label: "Сегодня" },
-  { key: "7d", label: "7 дней" },
-  { key: "month", label: "Этот месяц" },
-  { key: "prev-month", label: "Прошлый месяц" },
-  { key: "30d", label: "30 дней" },
-  { key: "year", label: "Этот год" },
-];
+export const PERIOD_OPTIONS: { key: PeriodKey; label: string }[] = (
+  ["today", "7d", "month", "prev-month", "30d", "year"] as const
+).map((key) => ({ key, label: t.periods[key] }));
 
 function parseDate(s: string | undefined): Date | null {
   if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
@@ -39,13 +36,13 @@ export function resolvePeriod(
 
   if (params.period === "custom") {
     const f = parseDate(params.from);
-    const t = parseDate(params.to);
-    if (f && t && f <= t) {
-      const end = new Date(t);
+    const u = parseDate(params.to);
+    if (f && u && f <= u) {
+      const end = new Date(u);
       end.setDate(end.getDate() + 1);
       return {
         key: "custom",
-        label: `${f.toLocaleDateString("ru-RU")} — ${t.toLocaleDateString("ru-RU")}`,
+        label: `${f.toLocaleDateString(t.intlLocale)} — ${u.toLocaleDateString(t.intlLocale)}`,
         from: f.getTime(),
         to: end.getTime(),
       };

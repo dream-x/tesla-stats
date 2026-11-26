@@ -26,7 +26,7 @@ export function pollOnce(): Promise<PollResult> {
 }
 
 async function doPoll(): Promise<PollResult> {
-  if (!isTeslaConfigured() || !isTeslaConnected()) return { status: "skipped", message: "Tesla не подключена" };
+  if (!isTeslaConfigured() || !isTeslaConnected()) return { status: "skipped", message: "Tesla is not connected" };
   const now = Date.now();
   setSetting("tesla_last_poll", String(now));
   try {

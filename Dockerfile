@@ -7,11 +7,14 @@ FROM node:24-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
+ARG APP_LOCALE=en
+ENV NEXT_TELEMETRY_DISABLED=1 APP_LOCALE=$APP_LOCALE
 RUN npm run build
 
 FROM node:24-alpine AS runner
 WORKDIR /app
+ARG APP_LOCALE=en
+ENV APP_LOCALE=$APP_LOCALE
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0 DATABASE_PATH=/app/data/tesla.db
 RUN apk add --no-cache tzdata
 COPY --from=build /app/.next/standalone ./

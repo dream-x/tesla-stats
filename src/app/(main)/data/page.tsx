@@ -3,17 +3,17 @@ import { Suspense } from "react";
 import { addChargeAction, addOdometerAction, deleteSnapshotAction } from "@/lib/actions";
 import { getDb } from "@/lib/db";
 import { fmtDateTime, fmtNum } from "@/lib/format";
+import { t } from "@/lib/i18n";
 import { toDateInput } from "@/lib/periods";
 
 export default function DataPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Данные</h1>
+      <h1 className="text-2xl font-semibold">{t.data.title}</h1>
       <p className="text-sm text-neutral-400">
-        Если Tesla API не подключён (или хочется дополнить историю), вносите показания одометра и зарядки вручную.
-        Пробег считается как разница между соседними показаниями одометра.
+        {t.data.intro}
       </p>
-      <Suspense fallback={<div className="text-neutral-500">Загрузка…</div>}>
+      <Suspense fallback={<div className="text-neutral-500">{t.loading}</div>}>
         <DataContent />
       </Suspense>
     </div>
@@ -36,73 +36,73 @@ async function DataContent() {
     <>
       <div className="grid gap-4 md:grid-cols-2">
         <form action={addOdometerAction} className="card space-y-3">
-          <h2 className="font-medium">Показание одометра</h2>
+          <h2 className="font-medium">{t.data.odometerReading}</h2>
           <label className="block text-sm">
-            <span className="text-neutral-400">Дата и время</span>
+            <span className="text-neutral-400">{t.data.dateTime}</span>
             <input type="datetime-local" name="ts" defaultValue={now} className="input mt-1" />
           </label>
           <label className="block text-sm">
-            <span className="text-neutral-400">Одометр, км</span>
-            <input name="odometer_km" inputMode="decimal" required placeholder="например, 24 518" className="input mt-1" />
+            <span className="text-neutral-400">{t.data.odometerKm}</span>
+            <input name="odometer_km" inputMode="decimal" required placeholder={t.data.odometerPlaceholder} className="input mt-1" />
           </label>
           <label className="block text-sm">
-            <span className="text-neutral-400">Заряд батареи, % (необязательно)</span>
+            <span className="text-neutral-400">{t.data.batteryOptional}</span>
             <input name="battery_level" inputMode="numeric" className="input mt-1" />
           </label>
-          <button className="btn">Сохранить</button>
+          <button className="btn">{t.save}</button>
         </form>
 
         <form action={addChargeAction} className="card space-y-3">
-          <h2 className="font-medium">Зарядка</h2>
+          <h2 className="font-medium">{t.data.charge}</h2>
           <label className="block text-sm">
-            <span className="text-neutral-400">Дата и время</span>
+            <span className="text-neutral-400">{t.data.dateTime}</span>
             <input type="datetime-local" name="started_at" defaultValue={now} className="input mt-1" />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-sm">
-              <span className="text-neutral-400">Добавлено, кВт·ч</span>
+              <span className="text-neutral-400">{t.data.addedKwh}</span>
               <input name="energy_kwh" inputMode="decimal" required className="input mt-1" />
             </label>
             <label className="block text-sm">
-              <span className="text-neutral-400">Тип</span>
+              <span className="text-neutral-400">{t.data.type}</span>
               <select name="charger_type" className="input mt-1">
-                <option value="ac">AC (дом / Type 2)</option>
-                <option value="dc">DC (Supercharger / быстрая)</option>
+                <option value="ac">{t.data.acOption}</option>
+                <option value="dc">{t.data.dcOption}</option>
               </select>
             </label>
             <label className="block text-sm">
-              <span className="text-neutral-400">Было, %</span>
+              <span className="text-neutral-400">{t.data.socBefore}</span>
               <input name="start_soc" inputMode="numeric" className="input mt-1" />
             </label>
             <label className="block text-sm">
-              <span className="text-neutral-400">Стало, %</span>
+              <span className="text-neutral-400">{t.data.socAfter}</span>
               <input name="end_soc" inputMode="numeric" className="input mt-1" />
             </label>
             <label className="block text-sm">
-              <span className="text-neutral-400">Стоимость (если знаете)</span>
+              <span className="text-neutral-400">{t.data.costIfKnown}</span>
               <input name="cost" inputMode="decimal" className="input mt-1" />
             </label>
             <label className="block text-sm">
-              <span className="text-neutral-400">Заметка</span>
+              <span className="text-neutral-400">{t.data.note}</span>
               <input name="note" className="input mt-1" />
             </label>
           </div>
-          <button className="btn">Сохранить</button>
+          <button className="btn">{t.save}</button>
         </form>
       </div>
 
       <section className="card overflow-x-auto">
-        <h2 className="mb-3 font-medium">Последние показания одометра</h2>
+        <h2 className="mb-3 font-medium">{t.data.recentReadings}</h2>
         {snapshots.length === 0 ? (
-          <p className="text-sm text-neutral-500">Пока пусто.</p>
+          <p className="text-sm text-neutral-500">{t.data.empty}</p>
         ) : (
           <table className="w-full text-sm">
             <thead className="text-left text-xs text-neutral-500">
               <tr>
-                <th className="py-1 pr-3 font-normal">Время</th>
-                <th className="py-1 pr-3 text-right font-normal">Одометр, км</th>
-                <th className="py-1 pr-3 text-right font-normal">Батарея</th>
-                <th className="py-1 pr-3 font-normal">Источник</th>
+                <th className="py-1 pr-3 font-normal">{t.data.colTime}</th>
+                <th className="py-1 pr-3 text-right font-normal">{t.data.odometerKm}</th>
+                <th className="py-1 pr-3 text-right font-normal">{t.data.colBattery}</th>
+                <th className="py-1 pr-3 font-normal">{t.data.colSource}</th>
                 <th />
               </tr>
             </thead>
@@ -113,12 +113,12 @@ async function DataContent() {
                   <td className="py-1.5 pr-3 text-right">{fmtNum(s.odometer_km, 1)}</td>
                   <td className="py-1.5 pr-3 text-right">{s.battery_level != null ? `${s.battery_level}%` : "—"}</td>
                   <td className="py-1.5 pr-3 text-neutral-400">
-                    {{ api: "Tesla API", manual: "вручную", demo: "демо" }[s.source] ?? s.source}
+                    {t.data.sources[s.source] ?? s.source}
                   </td>
                   <td className="py-1.5 text-right">
                     <form action={deleteSnapshotAction}>
                       <input type="hidden" name="id" value={s.id} />
-                      <button className="text-neutral-600 hover:text-red-400" title="Удалить">
+                      <button className="text-neutral-600 hover:text-red-400" title={t.delete}>
                         ✕
                       </button>
                     </form>

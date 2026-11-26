@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getDb, setSetting } from "./db";
 import { clearDemoData, seedDemoData } from "./demo";
+import { t } from "./i18n";
 import { pollOnce } from "./poller";
 import { disconnectTesla } from "./tesla";
 
@@ -71,7 +72,7 @@ export async function saveSettingsAction(formData: FormData) {
   setSetting("price_peak", String(num(formData.get("price_peak")) ?? 0));
   setSetting("price_semi", String(num(formData.get("price_semi")) ?? 0));
   setSetting("price_night", String(num(formData.get("price_night")) ?? 0));
-  setSetting("currency", String(formData.get("currency") ?? "₽").trim().slice(0, 5) || "₽");
+  setSetting("currency", String(formData.get("currency") ?? t.defaultCurrency).trim().slice(0, 5) || t.defaultCurrency);
   done();
 }
 

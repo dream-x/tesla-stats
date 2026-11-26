@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { t } from "@/lib/i18n";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Tesla Stats",
     short_name: "Tesla Stats",
-    description: "Пробег и зарядка Tesla за период",
+    description: t.appDescription,
     start_url: "/",
     display: "standalone",
     background_color: "#0b0b0c",

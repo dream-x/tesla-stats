@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { t } from "@/lib/i18n";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,16 +10,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             ⚡ Tesla Stats
           </Link>
           <Link href="/" className="text-neutral-400 hover:text-white">
-            Статистика
+            {t.nav.stats}
           </Link>
           <Link href="/data" className="text-neutral-400 hover:text-white">
-            Данные
+            {t.nav.data}
           </Link>
           <Link href="/widget" className="text-neutral-400 hover:text-white">
-            Виджет
+            {t.nav.widget}
           </Link>
           <Link href="/settings" className="ml-auto text-neutral-400 hover:text-white">
-            Настройки
+            {t.nav.settings}
           </Link>
         </nav>
       </header>

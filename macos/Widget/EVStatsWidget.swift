@@ -5,18 +5,18 @@ import WidgetKit
 enum StatsPeriod: String, AppEnum {
     case today, sevenDays = "7d", month, prevMonth = "prev-month", thirtyDays = "30d", year
 
-    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Период"
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Period"
     static let caseDisplayRepresentations: [StatsPeriod: DisplayRepresentation] = [
-        .today: "Сегодня", .sevenDays: "7 дней", .month: "Этот месяц",
-        .prevMonth: "Прошлый месяц", .thirtyDays: "30 дней", .year: "Этот год",
+        .today: "Today", .sevenDays: "7 days", .month: "This month",
+        .prevMonth: "Last month", .thirtyDays: "30 days", .year: "This year",
     ]
 }
 
 struct PeriodIntent: WidgetConfigurationIntent {
-    static let title: LocalizedStringResource = "Период статистики"
-    static let description = IntentDescription("За какой период показывать пробег и зарядку.")
+    static let title: LocalizedStringResource = "Stats period"
+    static let description = IntentDescription("Which period to show mileage and charging for.")
 
-    @Parameter(title: "Период", default: .month)
+    @Parameter(title: "Period", default: .month)
     var period: StatsPeriod
 }
 
@@ -45,7 +45,7 @@ struct Provider: AppIntentTimelineProvider {
         do {
             return StatsEntry(date: .now, summary: try await StatsAPI.fetch(period: configuration.period.rawValue), error: nil)
         } catch {
-            return StatsEntry(date: .now, summary: nil, error: "Нет связи с \(AppConfig.baseURL)")
+            return StatsEntry(date: .now, summary: nil, error: L10n.noConnection(AppConfig.baseURL))
         }
     }
 }
@@ -108,8 +108,8 @@ struct EVStatsWidgetView: View {
             } else {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("⚡ EV Stats").font(.headline)
-                    Text(entry.error ?? "Нет данных").font(.caption).foregroundStyle(.red)
-                    Text("Запустите сервер: npm start").font(.caption2).foregroundStyle(.secondary)
+                    Text(entry.error ?? L10n.noData).font(.caption).foregroundStyle(.red)
+                    Text(L10n.startServer).font(.caption2).foregroundStyle(.secondary)
                 }
             }
         }
@@ -130,12 +130,12 @@ struct EVStatsWidgetView: View {
             Text(s.period.label.uppercased()).font(.system(size: 9)).foregroundStyle(.secondary)
 
             HStack(alignment: .top) {
-                BigStat(value: Fmt.num(s.km), unit: "км", color: kmColor)
+                BigStat(value: Fmt.num(s.km), unit: L10n.km, color: kmColor)
                 Spacer(minLength: 8)
-                BigStat(value: Fmt.num(s.kwh), unit: "кВт·ч", color: kwhColor)
+                BigStat(value: Fmt.num(s.kwh), unit: L10n.kwh, color: kwhColor)
                 if family != .systemSmall {
                     Spacer(minLength: 8)
-                    BigStat(value: s.whPerKm.map { Fmt.num($0) } ?? "—", unit: "Вт·ч/км", color: .white)
+                    BigStat(value: s.whPerKm.map { Fmt.num($0) } ?? "—", unit: L10n.whPerKm, color: .white)
                     if s.cost > 0 {
                         Spacer(minLength: 8)
                         BigStat(value: Fmt.num(s.cost), unit: s.currency, color: .white)
@@ -150,13 +150,13 @@ struct EVStatsWidgetView: View {
             }
 
             if family == .systemSmall {
-                Text("сегодня \(Fmt.num(s.today.km)) км").font(.system(size: 9)).foregroundStyle(.secondary)
+                Text(L10n.today(Fmt.num(s.today.km))).font(.system(size: 9)).foregroundStyle(.secondary)
             } else {
                 HStack {
-                    SmallStat(value: Fmt.num(s.today.km), label: "км сегодня")
-                    SmallStat(value: Fmt.num(s.today.kwh, 1), label: "кВт·ч сегодня")
-                    SmallStat(value: "\(s.chargeCount)", label: "зарядок")
-                    if let r = s.latest?.rangeKm { SmallStat(value: Fmt.num(r), label: "км запаса") }
+                    SmallStat(value: Fmt.num(s.today.km), label: L10n.kmToday)
+                    SmallStat(value: Fmt.num(s.today.kwh, 1), label: L10n.kwhToday)
+                    SmallStat(value: "\(s.chargeCount)", label: L10n.charges)
+                    if let r = s.latest?.rangeKm { SmallStat(value: Fmt.num(r), label: L10n.kmRange) }
                 }
             }
         }
@@ -170,7 +170,7 @@ struct EVStatsWidget: Widget {
             EVStatsWidgetView(entry: entry)
         }
         .configurationDisplayName("EV Stats")
-        .description("Пробег и зарядка за период")
+        .description(Text(L10n.widgetDescription))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

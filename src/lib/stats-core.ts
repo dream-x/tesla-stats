@@ -1,3 +1,5 @@
+import { t } from "./i18n";
+
 export type ChargerType = "ac" | "dc";
 
 export interface OdometerDelta {
@@ -46,8 +48,6 @@ export interface Summary {
   buckets: Bucket[];
   granularity: "day" | "month";
 }
-
-const MONTHS_SHORT = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
 
 export type TouZone = "peak" | "semi" | "night";
 
@@ -111,8 +111,8 @@ export function makeBuckets(from: number, to: number): { buckets: Bucket[]; gran
       key: bucketKey(start, granularity),
       label:
         granularity === "month"
-          ? `${MONTHS_SHORT[cur.getMonth()]} ${String(cur.getFullYear()).slice(2)}`
-          : `${cur.getDate()} ${MONTHS_SHORT[cur.getMonth()]}`,
+          ? t.monthLabel(t.monthsShort[cur.getMonth()], String(cur.getFullYear()).slice(2))
+          : t.dayLabel(cur.getDate(), t.monthsShort[cur.getMonth()]),
       start,
       km: 0,
       kwh: 0,

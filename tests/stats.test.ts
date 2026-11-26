@@ -34,7 +34,7 @@ test("summarize sums distance and energy into daily buckets", () => {
   assert.equal(s.kwhDc, 2);
   assert.equal(s.cost, 8 * 5 + 100);
   assert.equal(s.whPerKm, 200);
-  assert.deepEqual(s.buckets.find((b) => b.key === "2026-11-02"), { key: "2026-11-02", label: "2 ноя", start: new Date(2026, 10, 2).getTime(), km: 50, kwh: 8 });
+  assert.deepEqual(s.buckets.find((b) => b.key === "2026-11-02"), { key: "2026-11-02", label: "Nov 2", start: new Date(2026, 10, 2).getTime(), km: 50, kwh: 8 });
 });
 
 test("summarize uses monthly buckets for long periods", () => {

@@ -3,14 +3,22 @@
 // 2. Set BASE_URL (and TOKEN if WIDGET_TOKEN is configured on the server).
 // 3. Add a Scriptable widget to the home screen and pick this script.
 //    Widget parameter (optional): today | 7d | month | prev-month | 30d | year
+// 4. Set LANG to "ru" for Russian labels (period names come from the server's APP_LOCALE).
 
 const BASE_URL = "http://192.168.1.10:3000";
 const TOKEN = "";
+const LANG = "en"; // "en" | "ru"
+
+const STRINGS = {
+  en: { locale: "en-US", km: "km", kwh: "kWh", whPerKm: "Wh/km", today: "today" },
+  ru: { locale: "ru-RU", km: "км", kwh: "кВт·ч", whPerKm: "Вт·ч/км", today: "сегодня" },
+};
+const L = STRINGS[LANG] || STRINGS.en;
 
 const period = (args.widgetParameter || "month").trim();
 const url = `${BASE_URL}/api/summary?period=${encodeURIComponent(period)}${TOKEN ? `&token=${encodeURIComponent(TOKEN)}` : ""}`;
 
-const fmt = (n, d = 0) => Number(n ?? 0).toLocaleString("ru-RU", { maximumFractionDigits: d });
+const fmt = (n, d = 0) => Number(n ?? 0).toLocaleString(L.locale, { maximumFractionDigits: d });
 
 async function load() {
   const req = new Request(url);
@@ -53,13 +61,13 @@ function buildWidget(d) {
   w.addSpacer(6);
 
   const row = w.addStack();
-  addStat(row, fmt(d.km), "км", new Color("#38bdf8"));
+  addStat(row, fmt(d.km), L.km, new Color("#38bdf8"));
   row.addSpacer();
-  addStat(row, fmt(d.kwh), "кВт·ч", new Color("#34d399"));
+  addStat(row, fmt(d.kwh), L.kwh, new Color("#34d399"));
 
   if (config.widgetFamily !== "small") {
     row.addSpacer();
-    addStat(row, d.whPerKm != null ? String(d.whPerKm) : "—", "Вт·ч/км", Color.white());
+    addStat(row, d.whPerKm != null ? String(d.whPerKm) : "—", L.whPerKm, Color.white());
     if (d.cost > 0) {
       row.addSpacer();
       addStat(row, fmt(d.cost), d.currency, Color.white());
@@ -67,7 +75,7 @@ function buildWidget(d) {
   }
 
   w.addSpacer();
-  const foot = w.addText(`сегодня ${fmt(d.today.km)} км · ${fmt(d.today.kwh, 1)} кВт·ч`);
+  const foot = w.addText(`${L.today} ${fmt(d.today.km)} ${L.km} · ${fmt(d.today.kwh, 1)} ${L.kwh}`);
   foot.font = Font.systemFont(9);
   foot.textColor = Color.gray();
   return w;

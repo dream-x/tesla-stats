@@ -10,7 +10,7 @@ export const MILES_TO_KM = 1.609344;
 
 export class VehicleAsleepError extends Error {
   constructor() {
-    super("Машина спит или офлайн");
+    super("Vehicle is asleep or offline");
   }
 }
 
@@ -88,7 +88,7 @@ function getAccessToken(): Promise<string> {
 
 async function refreshAccessToken(): Promise<string> {
   const refreshToken = getSetting("tesla_refresh_token") || process.env.TESLA_REFRESH_TOKEN;
-  if (!refreshToken) throw new Error("Tesla не подключена");
+  if (!refreshToken) throw new Error("Tesla is not connected");
   const t = await tokenRequest({
     grant_type: "refresh_token",
     client_id: teslaConfig().clientId,
@@ -124,7 +124,7 @@ export async function resolveVin(): Promise<string> {
   const vin = process.env.TESLA_VIN || getSetting("tesla_vin");
   if (vin) return vin;
   const list = await apiGet<VehicleListItem[]>("/api/1/vehicles");
-  if (!list.length) throw new Error("В аккаунте Tesla нет машин");
+  if (!list.length) throw new Error("No vehicles in the Tesla account");
   setSetting("tesla_vin", list[0].vin);
   setSetting("tesla_vehicle_name", list[0].display_name || "Tesla");
   return list[0].vin;

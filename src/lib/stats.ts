@@ -1,4 +1,5 @@
 import { getDb, getSetting } from "./db";
+import { t } from "./i18n";
 import { summarize, type ChargeRow, type OdometerDelta, type Prices, type Summary } from "./stats-core";
 
 export interface AppSettings {
@@ -17,7 +18,7 @@ export function getAppSettings(): AppSettings {
   return {
     priceAc: n("price_ac"),
     priceDc: n("price_dc"),
-    currency: getSetting("currency") || "₽",
+    currency: getSetting("currency") || t.defaultCurrency,
     touEnabled: getSetting("tou_enabled") === "1",
     pricePeak: n("price_peak"),
     priceSemi: n("price_semi"),

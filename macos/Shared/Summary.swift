@@ -26,8 +26,8 @@ struct Summary: Codable {
 
     static let placeholder = Summary(
         vehicleName: "Tesla",
-        period: .init(key: "month", label: "Этот месяц"),
-        km: 1333, kwh: 234, whPerKm: 176, cost: 1180, currency: "₽", chargeCount: 9,
+        period: .init(key: "month", label: L10n.thisMonth),
+        km: 1333, kwh: 234, whPerKm: 176, cost: 1180, currency: L10n.placeholderCurrency, chargeCount: 9,
         today: .init(km: 32, kwh: 0),
         latest: .init(ts: Date().timeIntervalSince1970 * 1000, odometerKm: 80490, batteryLevel: 65, rangeKm: 282, chargingState: "Disconnected"),
         series: (1...25).map { .init(key: "\($0)", label: "\($0)", km: Double(($0 * 37) % 90), kwh: Double(($0 * 53) % 40)) }
@@ -56,7 +56,7 @@ enum StatsAPI {
 enum Fmt {
     static func num(_ v: Double, _ digits: Int = 0) -> String {
         let f = NumberFormatter()
-        f.locale = Locale(identifier: "ru_RU")
+        f.locale = L10n.numberLocale
         f.numberStyle = .decimal
         f.maximumFractionDigits = digits
         return f.string(from: NSNumber(value: v)) ?? "\(v)"

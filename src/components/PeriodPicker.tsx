@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { t } from "@/lib/i18n";
 import { PERIOD_OPTIONS, toDateInput, type Period } from "@/lib/periods";
 
 export function PeriodPicker({ period, basePath = "/" }: { period: Period; basePath?: string }) {
@@ -35,7 +36,7 @@ export function PeriodPicker({ period, basePath = "/" }: { period: Period; baseP
             period.key === "custom" ? "bg-white text-black" : "bg-white/5 text-neutral-300 hover:bg-white/10"
           }`}
         >
-          Показать
+          {t.periodShow}
         </button>
       </form>
     </div>

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { AutoRefresh } from "@/components/AutoRefresh";
-import { CHARGING_STATE_RU, fmtAgo, fmtNum } from "@/lib/format";
+import { chargingStateLabel, fmtAgo, fmtMoney, fmtNum } from "@/lib/format";
+import { t } from "@/lib/i18n";
 import { PERIOD_OPTIONS } from "@/lib/periods";
 import { buildSummaryPayload } from "@/lib/summary";
 
@@ -34,7 +35,7 @@ async function Widget({ searchParams }: { searchParams: PageProps<"/widget">["se
         <span className="font-medium text-neutral-200">⚡ {d.vehicleName}</span>
         {d.latest?.batteryLevel != null && (
           <span>
-            🔋 {d.latest.batteryLevel}%{d.latest.rangeKm != null && ` · ${d.latest.rangeKm} км`}
+            🔋 {d.latest.batteryLevel}%{d.latest.rangeKm != null && ` · ${d.latest.rangeKm} ${t.units.km}`}
           </span>
         )}
       </div>
@@ -44,11 +45,11 @@ async function Widget({ searchParams }: { searchParams: PageProps<"/widget">["se
       <div className="mt-3 grid grid-cols-2 gap-4">
         <div>
           <div className="text-4xl font-semibold text-sky-400">{fmtNum(d.km, 0)}</div>
-          <div className="text-xs text-neutral-400">км проехано</div>
+          <div className="text-xs text-neutral-400">{t.widget.kmDriven}</div>
         </div>
         <div>
           <div className="text-4xl font-semibold text-emerald-400">{fmtNum(d.kwh, 0)}</div>
-          <div className="text-xs text-neutral-400">кВт·ч заряжено</div>
+          <div className="text-xs text-neutral-400">{t.widget.kwhCharged}</div>
         </div>
       </div>
 
@@ -64,15 +65,15 @@ async function Widget({ searchParams }: { searchParams: PageProps<"/widget">["se
       <div className="mt-3 grid grid-cols-3 gap-2 border-t border-white/10 pt-3 text-center text-xs">
         <div>
           <div className="text-base font-medium">{d.whPerKm ?? "—"}</div>
-          <div className="text-neutral-500">Вт·ч/км</div>
+          <div className="text-neutral-500">{t.units.whPerKm}</div>
         </div>
         <div>
           <div className="text-base font-medium">{fmtNum(d.today.km, 0)}</div>
-          <div className="text-neutral-500">км сегодня</div>
+          <div className="text-neutral-500">{t.widget.kmToday}</div>
         </div>
         <div>
-          <div className="text-base font-medium">{d.cost > 0 ? `${fmtNum(d.cost, 0)} ${d.currency}` : d.chargeCount}</div>
-          <div className="text-neutral-500">{d.cost > 0 ? "стоимость" : "зарядок"}</div>
+          <div className="text-base font-medium">{d.cost > 0 ? fmtMoney(d.cost, d.currency) : d.chargeCount}</div>
+          <div className="text-neutral-500">{d.cost > 0 ? t.widget.cost : t.widget.charges}</div>
         </div>
       </div>
 
@@ -92,8 +93,11 @@ async function Widget({ searchParams }: { searchParams: PageProps<"/widget">["se
 
       {d.latest && (
         <div className="mt-2 text-[10px] text-neutral-600">
-          {d.latest.chargingState && `${CHARGING_STATE_RU[d.latest.chargingState] ?? d.latest.chargingState} · `}
-          обновлено {fmtAgo(d.latest.ts)} · <Link href="/" className="underline">подробнее</Link>
+          {d.latest.chargingState && `${chargingStateLabel(d.latest.chargingState)} · `}
+          {t.widget.updated} {fmtAgo(d.latest.ts)} ·{" "}
+          <Link href="/" className="underline">
+            {t.widget.more}
+          </Link>
         </div>
       )}
     </div>

@@ -1,6 +1,10 @@
 services:
   tesla-stats:
-    build: .
+    build:
+      context: .
+      args:
+        # UI language baked into prerendered pages: en | ru
+        APP_LOCALE: ${APP_LOCALE:-en}
     restart: unless-stopped
     ports:
       - "3000:3000"
