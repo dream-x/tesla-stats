@@ -16,6 +16,8 @@ export interface ChargeRow {
   cost: number | null;
   note: string | null;
   source: string;
+  /** charge_energy_added at the first observation; the counter can carry over from an earlier plug-in. */
+  energy_base?: number;
 }
 
 export interface Prices {

@@ -37,7 +37,8 @@ function open(): DatabaseSync {
       charger_type TEXT NOT NULL DEFAULT 'ac',
       cost REAL,
       note TEXT,
-      source TEXT NOT NULL DEFAULT 'api'
+      source TEXT NOT NULL DEFAULT 'api',
+      energy_base REAL NOT NULL DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS idx_charges_started ON charges(started_at);
 
@@ -46,6 +47,10 @@ function open(): DatabaseSync {
       value TEXT
     );
   `);
+  const chargeCols = db.prepare("PRAGMA table_info(charges)").all() as { name: string }[];
+  if (!chargeCols.some((c) => c.name === "energy_base")) {
+    db.exec("ALTER TABLE charges ADD COLUMN energy_base REAL NOT NULL DEFAULT 0");
+  }
   return db;
 }
 

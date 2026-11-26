@@ -3,6 +3,7 @@ import { MILES_TO_KM, type VehicleData } from "./tesla";
 import type { ChargeRow } from "./stats-core";
 
 const SNAPSHOT_HEARTBEAT_MS = 6 * 3600_000;
+const MAX_MISSED_START_KWH = 3;
 
 export function isChargingState(s: string | undefined | null): boolean {
   return s === "Charging" || s === "Starting";
@@ -69,25 +70,28 @@ export function recordVehicleData(data: VehicleData, now = Date.now()): { active
   let session = openSession();
   if (charging) {
     // charge_energy_added resets when a new session starts; a drop means we missed the boundary.
-    if (session && energy < session.energy_kwh - 0.5) {
+    const base = session?.energy_base ?? 0;
+    if (session && energy < base + session.energy_kwh - 0.5) {
       closeSession(session, now, session.energy_kwh, null);
       session = undefined;
     }
     const type = cs.fast_charger_present ? "dc" : "ac";
     if (!session) {
+      // A counter already well above zero at the first reading is a leftover from an earlier session: count only the delta.
+      const newBase = energy > MAX_MISSED_START_KWH ? energy : 0;
       db.prepare(
-        "INSERT INTO charges (started_at, energy_kwh, start_soc, end_soc, charger_type, source) VALUES (?, ?, ?, ?, ?, 'api')",
-      ).run(now, energy, soc, soc, type);
+        "INSERT INTO charges (started_at, energy_kwh, start_soc, end_soc, charger_type, source, energy_base) VALUES (?, ?, ?, ?, ?, 'api', ?)",
+      ).run(now, energy - newBase, soc, soc, type, newBase);
     } else {
       db.prepare("UPDATE charges SET energy_kwh = ?, end_soc = ?, charger_type = ? WHERE id = ?").run(
-        Math.max(energy, session.energy_kwh),
+        Math.max(energy - base, session.energy_kwh),
         soc,
         type,
         session.id,
       );
     }
   } else if (session) {
-    closeSession(session, now, Math.max(energy, session.energy_kwh), soc);
+    closeSession(session, now, Math.max(energy - (session.energy_base ?? 0), session.energy_kwh), soc);
   }
 
   return { active: charging || (shift != null && shift !== "P") };

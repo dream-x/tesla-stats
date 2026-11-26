@@ -39,6 +39,7 @@ test("detects a charge session from start to completion", () => {
 test("splits back-to-back sessions and closes open session when the car sleeps", () => {
   db.getDb().exec("DELETE FROM charges");
   let t = 2_000_000;
+  rec.recordVehicleData(reading("Charging", 1, 50, 1000, true), (t += 60_000));
   rec.recordVehicleData(reading("Charging", 20, 60, 1000, true), (t += 60_000));
   rec.recordVehicleData(reading("Charging", 3, 30, 1100, true), (t += 60_000));
   rec.recordAsleep((t += 60_000));
@@ -48,6 +49,17 @@ test("splits back-to-back sessions and closes open session when the car sleeps",
   assert.equal(list[1].energy_kwh, 3);
   assert.equal(list[1].charger_type, "dc");
   assert.ok(list.every((c) => c.ended_at != null));
+});
+
+test("counts only the delta when the first reading carries a counter from an earlier plug-in", () => {
+  db.getDb().exec("DELETE FROM charges");
+  let t = 3_000_000;
+  rec.recordVehicleData(reading("Charging", 33.24, 79), (t += 60_000));
+  rec.recordVehicleData(reading("Charging", 34.5, 81), (t += 60_000));
+  rec.recordVehicleData(reading("Complete", 35.48, 83), (t += 60_000));
+  const [c] = charges();
+  assert.ok(Math.abs(c.energy_kwh - 2.24) < 1e-9);
+  assert.equal(c.start_soc, 79);
 });
 
 test("stores odometer in km and skips unchanged snapshots", () => {
